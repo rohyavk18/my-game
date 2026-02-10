@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Dodge The Enemies</title>
+  <style>
+    body {
+      margin: 0;
+      background: black;
+      color: white;
+      font-family: Arial;
+      text-align: center;
+    }
+
+    h1 {
+      margin: 10px;
+    }
+
+    #game {
+      width: 400px;
+      height: 500px;
+      background: #111;
+      margin: auto;
+      position: relative;
+      overflow: hidden;
+      border: 3px solid lime;
+    }
+
+    #player {
+      width: 50px;
+      height: 50px;
+      background: deepskyblue;
+      position: absolute;
+      bottom: 10px;
+      left: 175px;
+      border-radius: 10px;
+    }
+
+    .enemy {
+      width: 40px;
+      height: 40px;
+      background: red;
+      position: absolute;
+      top: -40px;
+      border-radius: 50%;
+    }
+
+    #gameOver {
+      display: none;
+      font-size: 26px;
+      color: red;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>Score: <span id="score">0</span></h1>
+
+<div id="game">
+  <div id="player"></div>
+</div>
+
+<div id="gameOver">GAME OVER ❌ Refresh to Restart</div>
+
+<script>
+  const game = document.getElementById("game");
+  const player = document.getElementById("player");
+  const scoreText = document.getElementById("score");
+  const gameOverText = document.getElementById("gameOver");
+
+  let playerX = 175;
+  let score = 0;
+  let speed = 10;
+  let gameRunning = true;
+
+  document.addEventListener("keydown", (e) => {
+    if (!gameRunning) return;
+
+    if (e.key === "ArrowLeft" && playerX > 0) {
+      playerX -= 20;
+    }
+    if (e.key === "ArrowRight" && playerX < 350) {
+      playerX += 20;
+    }
+    player.style.left = playerX + "px";
+  });
+
+  function createEnemy() {
+    if (!gameRunning) return;
+
+    const enemy = document.createElement("div");
+    enemy.classList.add("enemy");
+    enemy.style.left = Math.floor(Math.random() * 360) + "px";
+    game.appendChild(enemy);
+
+    let enemyY = -40;
+
+    const fall = setInterval(() => {
+      if (!gameRunning) {
+        clearInterval(fall);
+        enemy.remove();
+        return;
+      }
+
+      enemyY += speed;
+      enemy.style.top = enemyY + "px";
+
+      // collision
+      const enemyX = enemy.offsetLeft;
+      if (
+        enemyY > 400 &&
+        enemyX > playerX - 30 &&
+        enemyX < playerX + 50
+      ) {
+        gameRunning = false;
+        gameOverText.style.display = "block";
+      }
+
+      if (enemyY > 500) {
+        clearInterval(fall);
+        enemy.remove();
+        score++;
+        scoreText.innerText = score;
+        if (score % 3 === 0) speed++;
+      }
+    }, 20);
+  }
+
+  setInterval(createEnemy, 1000);
+</script>
+
+</body>
+</html>
